@@ -1,55 +1,46 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - master
 
 pool:
-  vmImage: ubuntu-22.04
-
-variables:
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
+  vmImage: 'ubuntu-22.04'
 
 steps:
-- task: NuGetToolInstaller@1
-  name: 'NuGetToolInstaller'
-  displayName: 'NuGet restore packages'
 
+- task: UseDotNet@2
+  name: InstallDotNet
+  displayName: 'Install .NET SDK 8.0'
+  inputs:
+    packageType: 'sdk'
+    version: '8.0.425'
 
-- task: NuGetCommand@2
-  name: 'NuGetRestore'
-  displayName: 'NuGet tool installer'
+- task: DotNetCoreCLI@2
+  name: Restore
+  displayName: 'Restore NuGet Packages'
   inputs:
     command: 'restore'
-    restoreSolution: '**/*.sln'
-    feedsToUse: 'select'
-
+    projects: 'NZWalks.sln'
 
 - task: DotNetCoreCLI@2
-  name: 'Tests'
-  displayName: 'Run Tests'
+  name: Build
+  displayName: 'Build Solution'
   inputs:
-    command: 'test'
-    projects: '$(solution)'
-    arguments: '--configuration $(BuildConfiguration)'
+    command: 'build'
+    projects: 'NZWalks.sln'
+    arguments: '--configuration Release'
 
 - task: DotNetCoreCLI@2
-  name: 'Publish'
-  displayName: 'Publish'
+  name: Publish
+  displayName: 'Publish Application'
   inputs:
     command: 'publish'
-    publishWebProjects: false
-    projects: '$(solution)'
-    arguments: '--configuration $(BuildConfiguration)--output(BuildArtifactStagingDirectory))'
+    projects: 'NZWalks.sln'
+    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)'
     zipAfterPublish: false
 
 - task: PublishBuildArtifacts@1
-  name: 'PublishBuildArtifacts'
-  displayName: 'Publish build artifact'
+  name: PublishArtifacts
+  displayName: 'Publish Build Artifacts'
   inputs:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'AzureTestProj'
+    ArtifactName: 'NZWalks'
     publishLocation: 'Container'
