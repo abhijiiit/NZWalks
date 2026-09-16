@@ -8,3 +8,5 @@ public class Difficulty
     public string Name { get; set; }
 
 }
+
+// Testing Azure DevOps CI pipeline
