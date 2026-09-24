@@ -1,60 +1,19 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
-trigger:
-  none
-
-variables:
-  ISSWebsiteName: 'AzureTestProject'
+trigger: none
 
 resources:
   pipelines:
-    - pipeline: 'buildPipeline'
-      project: 'NZWalks'
-      source: 'Build Pipeline1'
-      branch: 'master'
+  - pipeline: buildPipeline
+    source: 'Build Pipeline1'
 
-stages:
-  - stage: 'DeployWebsite'
-    displayName: 'Deploye Website'
-    pool:
-      vmImage: windows-latest
-    jobs:
-      - deployment: DeployWebsite
-        displayName: 'Diploy Website'
-        environment: 'Windows 11 server.DAVE'
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: none
+pool:
+  vmImage: 'windows-latest'
 
-                - download: 'buildPipeline'
-                  name: 'DownloadBuildArtifacts'
-                  displayName: 'Download Build Artifacts'
-                  artifact: 'NZWalks'
+steps:
 
-                - task: IISWebAppManagementOnMachineGroup@0
-                  name: 'StopIIS'
-                  inputs:
-                    IISDeploymentType: 'IISWebsite'
-                    ActionIISWebsite: 'StopWebsite'
-                    StartStopWebsiteName: '$((variables.IISWebsiteName))'
+- download: buildPipeline
+  artifact: NZWalks
 
-                - task: IISWebAppDeploymentOnMachineGroup@0
-                  name: 'DeployIIS'
-                  displayName: 'Deploy ISS Website'
-                  inputs:
-                    WebSiteName: '$((variables.IISWebsiteName))'
-                    Package: '$(Pipeline.Workspace)\buildPipeline\NZWalks\roundabout..Azuretestproj'
-                    TakeAppOfflineFlag: true
-                
-                - task: IISWebAppManagementOnMachineGroup@0
-                  name: 'StartIIS'
-                  displayName: 'Start IIS Website'
-                  inputs:
-                    IISDeploymentType: 'IISWebsite'
-                    ActionIISWebsite: 'StartWebsite'
-                    StartStopWebsiteName: '$((variables.IISWebsiteName))'
+- powershell: |
+    Write-Host "Deployment Started"
+    Get-ChildItem "$(Pipeline.Workspace)" -Recurse
+  displayName: "Verify Artifact"
