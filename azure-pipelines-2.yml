@@ -4,7 +4,6 @@ resources:
   pipelines:
   - pipeline: buildPipeline
     source: 'Build Pipeline1'
-    trigger: true
 
 pool:
   vmImage: 'windows-latest'
