@@ -4,16 +4,34 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+  none
 
-pool:
-  vmImage: ubuntu-latest
+variables:
+  ISSWebsiteName: 'AzureTestProject'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+resources:
+  pipelines:
+    - pipeline: 'buildPipeline'
+      project: 'AzureTestProject'
+      source: 'Build Pipeline'
+      branch: 'master'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
+  - stage: 'DeployWebsite'
+    displayName: 'Deploye Website'
+    pool:
+      vmImage: windows-latest
+    jobs:
+      - deployment: DeployWebsite
+        displayName: 'Diploy Website'
+        environment: 'Windows 11 server.DAVE'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: none
+
+                - download: 'buildPipeline'
+                  name: 'DownloadBuildArtifacts'
+                  displayName: 'Download Build Artifacts'
+                  artifact: 'AzureTestProject'
