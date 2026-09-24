@@ -4,7 +4,6 @@ resources:
   pipelines:
   - pipeline: buildPipeline
     source: 'Build Pipeline1'
-    trigger: true
 
 pool:
   vmImage: 'windows-latest'
@@ -16,5 +15,7 @@ steps:
 
 - powershell: |
     Write-Host "Deployment Started"
-    Get-ChildItem "$(Pipeline.Workspace)" -Recurse
-  displayName: "Verify Artifact"
+    Write-Host "$(Pipeline.Workspace)"
+    Write-Host "========== FILES =========="
+    Get-ChildItem "$(Pipeline.Workspace)" -Recurse | Select-Object FullName
+  displayName: "Find Artifact Path"
