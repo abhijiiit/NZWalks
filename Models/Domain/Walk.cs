@@ -18,3 +18,5 @@ public class Walk
     public Difficulty Difficulty { get; set; } 
     public Region Region { get; set; }
 }
+
+//For Ci check added this comment
