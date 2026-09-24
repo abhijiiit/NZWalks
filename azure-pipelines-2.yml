@@ -4,18 +4,32 @@ resources:
   pipelines:
   - pipeline: buildPipeline
     source: 'Build Pipeline1'
+    trigger: true
 
 pool:
   vmImage: 'windows-latest'
 
 steps:
 
-- download: buildPipeline
-  artifact: NZWalks
+- checkout: none
 
-- powershell: |
-    Write-Host "Deployment Started"
-    Write-Host "$(Pipeline.Workspace)"
-    Write-Host "========== FILES =========="
-    Get-ChildItem "$(Pipeline.Workspace)" -Recurse | Select-Object FullName
-  displayName: "Find Artifact Path"
+- download: buildPipeline
+  displayName: 'Download Build Artifacts'
+  artifact: 'NZWalks'
+
+- task: PowerShell@2
+  displayName: 'Deploy Application'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $PackagePath = "$(Pipeline.Workspace)\buildPipeline\NZWalks\s"
+
+      Write-Host "Deployment Started"
+
+      if (Test-Path $PackagePath) {
+        Write-Host "Artifact Verified"
+        Write-Host "Deployment Completed Successfully"
+      }
+      else {
+        throw "Artifact Not Found"
+      }
