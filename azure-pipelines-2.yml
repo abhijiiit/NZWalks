@@ -12,8 +12,8 @@ variables:
 resources:
   pipelines:
     - pipeline: 'buildPipeline'
-      project: 'AzureTestProject'
-      source: 'Build Pipeline'
+      project: 'NZWalks'
+      source: 'Build Pipeline1'
       branch: 'master'
 
 stages:
@@ -34,4 +34,27 @@ stages:
                 - download: 'buildPipeline'
                   name: 'DownloadBuildArtifacts'
                   displayName: 'Download Build Artifacts'
-                  artifact: 'AzureTestProject'
+                  artifact: 'NZWalks'
+
+                - task: IISWebAppManagementOnMachineGroup@0
+                  name: 'StopIIS'
+                  inputs:
+                    IISDeploymentType: 'IISWebsite'
+                    ActionIISWebsite: 'StopWebsite'
+                    StartStopWebsiteName: '$((variables.IISWebsiteName))'
+
+                - task: IISWebAppDeploymentOnMachineGroup@0
+                  name: 'DeployIIS'
+                  displayName: 'Deploy ISS Website'
+                  inputs:
+                    WebSiteName: '$((variables.IISWebsiteName))'
+                    Package: '$(Pipeline.Workspace)\buildPipeline\NZWalks\roundabout..Azuretestproj'
+                    TakeAppOfflineFlag: true
+                
+                - task: IISWebAppManagementOnMachineGroup@0
+                  name: 'StartIIS'
+                  displayName: 'Start IIS Website'
+                  inputs:
+                    IISDeploymentType: 'IISWebsite'
+                    ActionIISWebsite: 'StartWebsite'
+                    StartStopWebsiteName: '$((variables.IISWebsiteName))'
